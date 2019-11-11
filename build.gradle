@@ -1,0 +1,28 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+}
+
+group 'com.dmedeiros'
+version '0.1'
+
+sourceCompatibility = 1.8
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven-publish'
+    publishing {
+        publications {
+            blocker(MavenPublication) {
+                from components.java
+            }
+        }
+
+        repositories {
+            maven {
+                name = 'myRepo'
+                url = "file://${buildDir}/repo"
+            }
+        }
+    }
+}
