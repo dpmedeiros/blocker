@@ -35,8 +35,12 @@ inline fun <reified T, R> (((T) -> Unit) -> R).runBlocking(timeoutMs: Long = 500
 }
 
 /**
- * Invokes the specified function taking a callback and blocks indefinitely until the callback is
- * invoked.  Returns the result passed to the callback
+ * Calls, in a blocking fashion, a referred method that accepts a callback which takes one
+ * parameter of type [T].  Blocks indefinitely until the callback is invoked.
+ *
+ * @return the value reported to the callback.
+ *
+ * @throws InterruptedException if the blocking thread is interrupted
  */
 inline fun <reified T, R> (((T) -> Unit) -> R).blockUntilCallback(): T {
     val resultContainer: MutableSet<T> = mutableSetOf()
