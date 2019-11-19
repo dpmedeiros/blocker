@@ -14,10 +14,10 @@ import kotlin.coroutines.suspendCoroutine
  *
  */
 @Suppress("TooGenericExceptionCaught")
-suspend inline fun <T, E : Throwable, R> coroutineBridge(crossinline f: ((T) -> Unit, (E) -> Unit) -> R): T =
+suspend inline fun <T, E : Throwable, R> (((T) -> Unit, (E) -> Unit) -> R).coroutineBridge(): T =
     suspendCoroutine { continuation: Continuation<T> ->
         try {
-            f({
+            invoke({
                 continuation.resume(it)
             }, {
                 continuation.resumeWithException(it)
