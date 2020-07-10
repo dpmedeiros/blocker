@@ -1,3 +1,7 @@
+# Blocker
+Blocker is a set of Kotlin utility functions to accomodate easy blocking on asynchronous operations. It provides
+extensions for raw java callbacks, rxjava, and coroutines (this last one is a stretch, since coroutines don't block).
+
 # Why this library?
 In general, if you have a use case where you feel you need to block a thread on any asynchronous construct, you may want
 to rethink your design.  Asynchronous functions are _meant to be asynchronous_, often because they support long-running
