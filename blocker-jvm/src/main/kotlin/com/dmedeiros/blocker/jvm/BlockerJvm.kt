@@ -87,7 +87,7 @@ fun ((() -> Unit) -> Unit).runNoResultBlocking(timeoutMs: Long = 500): Boolean {
  * flag is set.
  */
 fun <R> runUninterruptibly(block: () -> R): R =
-    UninterruptableRunner(uninterruptableThreadPoolExecutor.value).run(block)
+    UninterruptableRunner(uninterruptableThreadPoolExecutor).run(block)
 
 /**
  * returns a DSL to configure an executor on which to run a block uninterruptibly.
@@ -118,7 +118,7 @@ private class UninterruptableRunner constructor(private val executor: Executor) 
     }
 }
 
-private val uninterruptableThreadPoolExecutor = lazy {
+private val uninterruptableThreadPoolExecutor by lazy {
     Executors.newCachedThreadPool(object : ThreadFactory {
         val atom = AtomicInteger(0)
         override fun newThread(runnable: Runnable?): Thread =

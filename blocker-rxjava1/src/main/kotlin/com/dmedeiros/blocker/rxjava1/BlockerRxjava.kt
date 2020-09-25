@@ -1,11 +1,15 @@
 package com.dmedeiros.blocker.rxjava1
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import rx.Completable
 import rx.Observable
 import rx.Single
 import rx.Subscription
 import rx.observables.BlockingObservable
 import java.lang.NullPointerException
+import java.util.concurrent.CancellationException
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutionException
 
@@ -140,3 +144,35 @@ private fun CountDownLatch.awaitLatchOrInterrupt(subscription: Subscription) {
         throw e
     }
 }
+
+/**
+ * adapts a suspend function to a Single so that it can be executed rx-like but runs within a coroutine.
+ *
+ * @param func suspend function which returns a value to be emitted by the Single.
+ */
+fun <T> adaptSuspendFuncToSingle(func: suspend () -> T): Single<T> = Single.create { subscriber ->
+    val job = MainScope().launch(Dispatchers.Unconfined) {
+        try {
+            val output = func()
+            if (!subscriber.isUnsubscribed) {
+                subscriber.onSuccess(output)
+            }
+        } catch (e: CancellationException) {
+            subscriber.unsubscribe()
+        } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
+            if (!subscriber.isUnsubscribed) {
+                subscriber.onError(e)
+            }
+        }
+    }
+
+    subscriber.add(object : Subscription {
+        override fun isUnsubscribed(): Boolean = job.isCompleted
+
+        override fun unsubscribe() {
+            job.cancel()
+        }
+    })
+}
+
+// TODO: adaptSingleToSuspendFunc() ??
